@@ -202,7 +202,7 @@ export function DOOMGame() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState.gameOver, gameState.paused]);
+  }, [gameState.gameOver, gameState.paused, gameState.player, gameState.enemies, gameState.items, gameState.bullets, gameState.walls, gameState.score, gameState.level]);
 
   // Update game logic
   const updateGame = () => {
@@ -396,6 +396,9 @@ export function DOOMGame() {
 
   // Draw UI
   const drawUI = (ctx: CanvasRenderingContext2D) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
     // Health bar
     ctx.fillStyle = '#ff0000';
     ctx.fillRect(10, 10, 200, 20);
@@ -467,6 +470,40 @@ export function DOOMGame() {
       window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
+
+  // Handle player movement
+  useEffect(() => {
+    if (gameState.gameOver || gameState.paused) return;
+
+    setGameState(prev => {
+      const newState = { ...prev };
+      const player = { ...newState.player };
+      const speed = 3;
+      
+      if (keys.has('w')) player.y -= speed;
+      if (keys.has('s')) player.y += speed;
+      if (keys.has('a')) player.x -= speed;
+      if (keys.has('d')) player.x += speed;
+
+      // Keep player in bounds
+      player.x = Math.max(0, Math.min(780, player.x));
+      player.y = Math.max(0, Math.min(580, player.y));
+
+      // Check wall collisions
+      for (const wall of newState.walls) {
+        if (checkCollision(player, wall)) {
+          // Move player back
+          if (keys.has('w')) player.y += speed;
+          if (keys.has('s')) player.y -= speed;
+          if (keys.has('a')) player.x += speed;
+          if (keys.has('d')) player.x -= speed;
+        }
+      }
+
+      newState.player = player;
+      return newState;
+    });
+  }, [keys, gameState.gameOver, gameState.paused, gameState.walls]);
 
   // Handle mouse input
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
