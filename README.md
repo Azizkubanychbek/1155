@@ -1,6 +1,13 @@
-# Backpack Guilds
+# 🎒 Backpack Guilds
 
-A gaming protocol on Xsolla ZK (zkSync-based L2) that enables temporary item usage rights, party inventory sharing, and on-chain crafting for gaming guilds.
+## 🏆 **Hackathon Submission for Xsolla Backpack Gaming dApp Bounty**
+
+A revolutionary gaming protocol on Xsolla ZK (zkSync-based L2) that enables temporary item usage rights, party inventory sharing, and on-chain crafting for gaming guilds.
+
+### 🎯 **Live Demo & Repository**
+- **GitHub**: https://github.com/anteyko-labs/backpack-guilds
+- **Local Demo**: http://localhost:3000 (see setup instructions below)
+- **Network**: Xsolla ZK Sepolia Testnet
 
 ## Overview
 
