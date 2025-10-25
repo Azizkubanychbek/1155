@@ -53,6 +53,18 @@ interface IRecipeRegistry {
     );
 
     /**
+     * @dev Emitted when the contract is funded with tokens
+     * @param token The token address
+     * @param id The token ID
+     * @param amount The amount funded
+     */
+    event RecipeFunded(
+        address indexed token,
+        uint256 indexed id,
+        uint256 amount
+    );
+
+    /**
      * @dev Register a new crafting recipe
      * @param inputs The input ingredients
      * @param outputToken The output token address

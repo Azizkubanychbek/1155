@@ -2,7 +2,20 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
-import { USAGE_RIGHTS_ADDRESS, USAGE_RIGHTS_ABI } from '@/lib/addresses';
+import { CONTRACT_ADDRESSES } from '@/lib/addresses';
+import { parseAbi } from 'viem';
+
+// UsageRights1155 ABI (simplified)
+const USAGE_RIGHTS_ABI = parseAbi([
+  'function balanceOf(address account, uint256 id) view returns (uint256)',
+  'function userOf(uint256 id, address owner) view returns (address user, uint64 expires, uint256 amountGranted)',
+  'function isUserActive(uint256 id, address owner, address user) view returns (bool)',
+  'function setUser(uint256 id, address user, uint256 amount, uint64 expires)',
+  'function revokeUser(uint256 id, address user)',
+  'function setApprovalForAll(address operator, bool approved)',
+  'function isApprovedForAll(address owner, address operator) view returns (bool)',
+  'event UpdateUser(address indexed owner, address indexed user, uint256 indexed id, uint256 amount, uint64 expires)',
+]);
 
 interface GameObject {
   id: string;
@@ -67,34 +80,34 @@ export default function PixelShooter() {
 
   // Blockchain item balances
   const { data: swordBalance } = useReadContract({
-    address: USAGE_RIGHTS_ADDRESS,
+    address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 1],
+    args: [address || '0x0', 1n],
     enabled: !!address
   });
 
   const { data: shieldBalance } = useReadContract({
-    address: USAGE_RIGHTS_ADDRESS,
+    address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 2],
+    args: [address || '0x0', 2n],
     enabled: !!address
   });
 
   const { data: herbBalance } = useReadContract({
-    address: USAGE_RIGHTS_ADDRESS,
+    address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 3],
+    args: [address || '0x0', 3n],
     enabled: !!address
   });
 
   const { data: potionBalance } = useReadContract({
-    address: USAGE_RIGHTS_ADDRESS,
+    address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 4],
+    args: [address || '0x0', 4n],
     enabled: !!address
   });
 
@@ -167,10 +180,12 @@ export default function PixelShooter() {
 
   // Game loop
   useEffect(() => {
-    if (gameState.gameOver || gameState.paused) return;
+    if (gameState.gameOver) return;
 
     const gameLoop = () => {
-      updateGame();
+      if (!gameState.paused) {
+        updateGame();
+      }
       renderGame();
       gameLoopRef.current = requestAnimationFrame(gameLoop);
     };
@@ -182,11 +197,13 @@ export default function PixelShooter() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState.gameOver, gameState.paused]);
+  }, [gameState.gameOver]);
 
   // Update game logic
   const updateGame = () => {
     setGameState(prev => {
+      if (prev.gameOver || prev.paused) return prev;
+
       let newState = { ...prev };
 
       // Update player movement

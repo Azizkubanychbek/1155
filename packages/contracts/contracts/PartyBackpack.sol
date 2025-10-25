@@ -58,8 +58,12 @@ contract PartyBackpack is Ownable, ReentrancyGuard, ERC1155Holder, IPartyBackpac
         require(_partyBalances[id] >= amount, "PartyBackpack: insufficient party balance");
         require(expires > block.timestamp, "PartyBackpack: invalid expiration");
 
-        // Grant usage rights from this contract's tokens
-        usageRightsToken.setUser(id, to, amount, expires);
+        // Transfer tokens directly to the user (simpler approach)
+        IERC1155 token = IERC1155(address(usageRightsToken));
+        token.safeTransferFrom(address(this), to, id, amount, "");
+        
+        // Update party balance
+        _partyBalances[id] -= amount;
         
         // Update active users count
         _activeUsers[id]++;

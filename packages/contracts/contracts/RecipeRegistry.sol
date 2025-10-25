@@ -75,20 +75,13 @@ contract RecipeRegistry is Ownable, ReentrancyGuard, IRecipeRegistry {
             token.safeTransferFrom(msg.sender, address(this), ingredient.id, ingredient.amount, "");
         }
 
-        // Mint or transfer output item
-        if (recipe.outputToken == address(this)) {
-            // If output is this contract's token, mint it
-            UsageRights1155 outputToken = UsageRights1155(recipe.outputToken);
-            outputToken.mint(receiver, recipe.outputId, recipe.outputAmount, "");
-        } else {
-            // If output is external token, it should have been pre-funded
-            IERC1155 outputToken = IERC1155(recipe.outputToken);
-            require(
-                outputToken.balanceOf(address(this), recipe.outputId) >= recipe.outputAmount,
-                "RecipeRegistry: insufficient output token balance"
-            );
-            outputToken.safeTransferFrom(address(this), receiver, recipe.outputId, recipe.outputAmount, "");
-        }
+        // Transfer output item (should be pre-funded in this contract)
+        IERC1155 outputToken = IERC1155(recipe.outputToken);
+        require(
+            outputToken.balanceOf(address(this), recipe.outputId) >= recipe.outputAmount,
+            "RecipeRegistry: insufficient output token balance"
+        );
+        outputToken.safeTransferFrom(address(this), receiver, recipe.outputId, recipe.outputAmount, "");
 
         emit Crafted(msg.sender, recipeId, recipe.outputToken, recipe.outputId, recipe.outputAmount);
     }
@@ -121,5 +114,28 @@ contract RecipeRegistry is Ownable, ReentrancyGuard, IRecipeRegistry {
     function toggleRecipe(uint256 recipeId) external onlyOwner {
         require(recipeId < _recipeCount, "RecipeRegistry: invalid recipe ID");
         _recipeMap[recipeId].active = !_recipeMap[recipeId].active;
+    }
+
+    /**
+     * @dev Fund the contract with tokens for crafting (only owner)
+     */
+    function fundRecipe(
+        address token,
+        uint256 id,
+        uint256 amount
+    ) external onlyOwner {
+        IERC1155(token).safeTransferFrom(msg.sender, address(this), id, amount, "");
+        emit RecipeFunded(token, id, amount);
+    }
+
+    /**
+     * @dev Emergency withdraw tokens (only owner)
+     */
+    function emergencyWithdraw(
+        address token,
+        uint256 id,
+        uint256 amount
+    ) external onlyOwner {
+        IERC1155(token).safeTransferFrom(address(this), msg.sender, id, amount, "");
     }
 }

@@ -104,6 +104,21 @@ export default async function (hre: HardhatRuntimeEnvironment) {
     );
     
     console.log("Added recipe: 1x Sword + 2x Herb -> 1x Enchanted Sword");
+    
+    // Fund the contract with output tokens for crafting
+    console.log("Funding RecipeRegistry with output tokens...");
+    
+    // Fund Blessed Shield (ID: 42) - 100 tokens
+    await contract.fundRecipe(usageRightsAddress, 42, 100);
+    console.log("Funded 100x Blessed Shield (ID: 42)");
+    
+    // Fund Magic Potion (ID: 43) - 100 tokens  
+    await contract.fundRecipe(usageRightsAddress, 43, 100);
+    console.log("Funded 100x Magic Potion (ID: 43)");
+    
+    // Fund Enchanted Sword (ID: 44) - 100 tokens
+    await contract.fundRecipe(usageRightsAddress, 44, 100);
+    console.log("Funded 100x Enchanted Sword (ID: 44)");
   }
 
   return contract.address;
