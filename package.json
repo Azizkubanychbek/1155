@@ -1,0 +1,32 @@
+{
+  "name": "backpack-guilds",
+  "version": "1.0.0",
+  "description": "Backpack Guilds - Gaming protocol on Xsolla ZK for temporary item usage rights, party inventory, and on-chain crafting",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm -r --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write .",
+    "clean": "pnpm -r clean",
+    "compile": "cd packages/contracts && pnpm compile",
+    "deploy:xsolla": "cd packages/contracts && pnpm deploy:xsolla",
+    "seed:xsolla": "cd packages/contracts && pnpm seed:xsolla",
+    "chainid:xsolla": "cd packages/contracts && pnpm chainid:xsolla"
+  },
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "license": "MIT"
+}
