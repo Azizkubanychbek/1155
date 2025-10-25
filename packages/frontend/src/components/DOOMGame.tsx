@@ -202,7 +202,7 @@ export function DOOMGame() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState.gameOver, gameState.paused, gameState.player, gameState.enemies, gameState.items, gameState.bullets, gameState.walls, gameState.score, gameState.level]);
+  }, [gameState.gameOver, gameState.paused, keys]);
 
   // Update game logic
   const updateGame = () => {
@@ -212,6 +212,10 @@ export function DOOMGame() {
       // Update player movement
       const player = { ...newState.player };
       const speed = 3;
+      
+      // Store original position for collision detection
+      const originalX = player.x;
+      const originalY = player.y;
       
       if (keys.has('w')) player.y -= speed;
       if (keys.has('s')) player.y += speed;
@@ -223,14 +227,18 @@ export function DOOMGame() {
       player.y = Math.max(0, Math.min(580, player.y));
 
       // Check wall collisions for player
+      let collided = false;
       for (const wall of newState.walls) {
         if (checkCollision(player, wall)) {
-          // Move player back
-          if (keys.has('w')) player.y += speed;
-          if (keys.has('s')) player.y -= speed;
-          if (keys.has('a')) player.x += speed;
-          if (keys.has('d')) player.x -= speed;
+          collided = true;
+          break;
         }
+      }
+      
+      // If collided, revert to original position
+      if (collided) {
+        player.x = originalX;
+        player.y = originalY;
       }
 
       newState.player = player;
@@ -488,11 +496,18 @@ export function DOOMGame() {
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px Arial';
     ctx.fillText('WASD: Move | Mouse: Aim & Shoot | SPACE: Pause | ESC: Exit', 10, canvas.height - 20);
+    
+    // Debug info
+    ctx.fillStyle = '#ffff00';
+    ctx.font = '10px Arial';
+    ctx.fillText(`Keys: ${Array.from(keys).join(', ')}`, 10, canvas.height - 40);
+    ctx.fillText(`Player: ${Math.round(player.x)}, ${Math.round(player.y)}`, 10, canvas.height - 55);
   };
 
   // Handle keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      console.log('Key down:', e.key);
       setKeys(prev => new Set(prev).add(e.key.toLowerCase()));
       
       if (e.code === 'Space') {
@@ -507,6 +522,7 @@ export function DOOMGame() {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      console.log('Key up:', e.key);
       setKeys(prev => {
         const newKeys = new Set(prev);
         newKeys.delete(e.key.toLowerCase());
