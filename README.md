@@ -312,6 +312,7 @@ This project meets all Xsolla Backpack bounty requirements:
 ✅ **Documentation** - Comprehensive README with setup, deployment, and usage instructions
 
 ✅ **User Guides** - Complete English documentation:
+- [COMPLETE_FEATURES_GUIDE.md](COMPLETE_FEATURES_GUIDE.md) - **Complete features guide with all capabilities**
 - [USER_GUIDE_EN.md](USER_GUIDE_EN.md) - Complete user guide with security mechanisms
 - [QUICK_START_GUIDE_EN.md](QUICK_START_GUIDE_EN.md) - 5-minute quick start guide  
 - [USER_EXPERIENCE_FLOW_EN.md](USER_EXPERIENCE_FLOW_EN.md) - User journey diagrams
