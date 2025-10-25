@@ -60,7 +60,7 @@ export function ClientNavbar() {
             {isConnected ? (
               <div className="flex items-center space-x-4">
                 <span className="text-sm text-gray-700">
-                  {address?.slice(0, 6)}...{address?.slice(-4)}
+                  {mounted ? `${address?.slice(0, 6)}...${address?.slice(-4)}` : '...'}
                 </span>
                 <Button variant="outline" onClick={() => disconnect()}>
                   Disconnect

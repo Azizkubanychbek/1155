@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParty } from '@/hooks/useParty';
 import { useBackpack } from '@/hooks/useBackpack';
 import { Card } from './ui/Card';
@@ -21,6 +21,12 @@ export function PartyInventory() {
   const [userAddress, setUserAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [expires, setExpires] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleDeposit = async (tokenId: bigint) => {
     if (!amount) return;
@@ -81,13 +87,13 @@ export function PartyInventory() {
                 
                 <div className="space-y-2">
                   <div className="text-sm">
-                    <span className="font-medium">My Balance:</span> {balance?.toString() || '0'}
+                    <span className="font-medium">My Balance:</span> {isHydrated ? (balance?.toString() || '0') : '0'}
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium">Party Balance:</span> {partyBalance?.toString() || '0'}
+                    <span className="font-medium">Party Balance:</span> {isHydrated ? (partyBalance?.toString() || '0') : '0'}
                   </div>
                   <div className="text-sm">
-                    <span className="font-medium">Active Users:</span> {activeUsers?.toString() || '0'}
+                    <span className="font-medium">Active Users:</span> {isHydrated ? (activeUsers?.toString() || '0') : '0'}
                   </div>
                 </div>
 

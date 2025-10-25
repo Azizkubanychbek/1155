@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IUsageRights1155.sol";
+import "./ReputationSystem.sol";
 
 /**
  * @title UsageRights1155
@@ -14,8 +15,22 @@ import "./interfaces/IUsageRights1155.sol";
 contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 {
     // Mapping from token ID => owner => user => UserRecord
     mapping(uint256 => mapping(address => mapping(address => UserRecord))) private _usageRights;
+    
+    // Reputation system integration
+    ReputationSystem public reputationSystem;
+    
+    // Protection mechanisms
+    mapping(address => uint256) public lastRevokeTime;
+    uint256 public constant REVOKE_COOLDOWN = 1 hours;
+    uint256 public constant MIN_RENTAL_DURATION = 30 minutes;
+    
+    // Events for protection
+    event EarlyRevokeDetected(address indexed owner, address indexed user, uint256 tokenId, uint256 rentalDuration);
+    event RevokeBlocked(address indexed owner, string reason);
 
-    constructor(string memory uri) ERC1155(uri) {}
+    constructor(string memory uri, address _reputationSystem) ERC1155(uri) {
+        reputationSystem = ReputationSystem(_reputationSystem);
+    }
 
     /**
      * @dev Get the current user and expiration for a token
@@ -50,6 +65,7 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
     /**
      * @dev Set usage rights for a token
      * Only the token owner can set usage rights
+     * Now includes reputation and cooldown checks
      */
     function setUser(uint256 id, address user, uint256 amount, uint64 expires)
         public
@@ -59,6 +75,14 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
         require(balanceOf(msg.sender, id) >= amount, "UsageRights1155: insufficient balance");
         require(expires > block.timestamp, "UsageRights1155: invalid expiration");
         require(user != address(0), "UsageRights1155: invalid user");
+        
+        // Check reputation system
+        require(reputationSystem.canPerformAction(msg.sender), "UsageRights1155: user reputation too low");
+        require(reputationSystem.canPerformAction(user), "UsageRights1155: target user reputation too low");
+        
+        // Check cooldown period
+        require(block.timestamp >= lastRevokeTime[msg.sender] + REVOKE_COOLDOWN, 
+                "UsageRights1155: cooldown period not expired");
 
         // Clear existing usage rights for this user
         if (_usageRights[id][msg.sender][user].user != address(0)) {
@@ -77,9 +101,24 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
 
     /**
      * @dev Revoke usage rights for a token
+     * Now includes protection against early revokes
      */
     function revokeUser(uint256 id, address user) public override nonReentrant {
         require(_usageRights[id][msg.sender][user].user == user, "UsageRights1155: no rights to revoke");
+        
+        UserRecord memory record = _usageRights[id][msg.sender][user];
+        uint256 rentalDuration = block.timestamp - (record.expires - (record.expires - block.timestamp));
+        
+        // Check if this is an early revoke (before minimum rental duration)
+        if (rentalDuration < MIN_RENTAL_DURATION) {
+            // Record early revoke in reputation system
+            reputationSystem.recordEarlyRevoke(msg.sender, 0); // rentalId would be passed in real implementation
+            
+            emit EarlyRevokeDetected(msg.sender, user, id, rentalDuration);
+        }
+        
+        // Update last revoke time
+        lastRevokeTime[msg.sender] = block.timestamp;
         
         delete _usageRights[id][msg.sender][user];
         
@@ -130,5 +169,30 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
         onlyOwner
     {
         _mintBatch(to, ids, amounts, data);
+    }
+    
+    /**
+     * @dev Update reputation system address (only owner)
+     */
+    function setReputationSystem(address _reputationSystem) external onlyOwner {
+        reputationSystem = ReputationSystem(_reputationSystem);
+    }
+    
+    /**
+     * @dev Check if user can revoke (cooldown check)
+     */
+    function canRevoke(address user) external view returns (bool) {
+        return block.timestamp >= lastRevokeTime[user] + REVOKE_COOLDOWN;
+    }
+    
+    /**
+     * @dev Get time until next revoke is allowed
+     */
+    function timeUntilRevoke(address user) external view returns (uint256) {
+        uint256 nextRevokeTime = lastRevokeTime[user] + REVOKE_COOLDOWN;
+        if (block.timestamp >= nextRevokeTime) {
+            return 0;
+        }
+        return nextRevokeTime - block.timestamp;
     }
 }

@@ -1,6 +1,6 @@
 import { createConfig, http } from 'wagmi';
 import { defineChain } from 'viem';
-import { injected, metaMask, walletConnect } from 'wagmi/connectors';
+import { injected, metaMask } from 'wagmi/connectors';
 
 // Define Xsolla ZK Sepolia chain
 export const xsollaZkSepolia = defineChain({
@@ -37,10 +37,6 @@ export const config = createConfig({
         url: 'https://backpackguilds.com',
       },
     }),
-    // Temporarily disable WalletConnect to fix indexedDB errors
-    // walletConnect({
-    //   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'your-project-id',
-    // }),
   ],
   transports: {
     [xsollaZkSepolia.id]: http(),

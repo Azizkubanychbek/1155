@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRent } from '@/hooks/useRent';
 import { useAccount } from 'wagmi';
 import { Card } from './ui/Card';
@@ -18,6 +18,12 @@ export function RentPanel() {
   const [amount, setAmount] = useState('');
   const [hours, setHours] = useState('');
   const [deposit, setDeposit] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleCreateRental = async () => {
     if (!lender || !borrower || !token || !tokenId || !amount || !hours || !deposit) return;

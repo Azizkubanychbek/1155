@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useBackpack } from '@/hooks/useBackpack';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
@@ -18,6 +18,12 @@ export function BackpackList() {
   const [userAddress, setUserAddress] = useState('');
   const [amount, setAmount] = useState('');
   const [expires, setExpires] = useState('');
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleGrantUsage = async (tokenId: bigint) => {
     if (!userAddress || !amount || !expires) return;
@@ -58,7 +64,7 @@ export function BackpackList() {
                 <p className="text-sm text-gray-600">{token.description}</p>
                 
                 <div className="text-lg font-semibold">
-                  Balance: {isLoading ? '...' : balance?.toString() || '0'}
+                  Balance: {isHydrated ? (isLoading ? '...' : (balance?.toString() || '0')) : '0'}
                 </div>
 
                 <div className="space-y-3">

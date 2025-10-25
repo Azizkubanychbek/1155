@@ -18,9 +18,13 @@ export default async function (hre: HardhatRuntimeEnvironment) {
   // Load the contract artifact
   const artifact = await deployer.loadArtifact("UsageRights1155");
 
+  // Get ReputationSystem address from previous deployment
+  const reputationSystemDeployment = await hre.deployments.get("ReputationSystem");
+  console.log("Using ReputationSystem at:", reputationSystemDeployment.address);
+
   // Deploy this contract. The returned object will be of a `Contract` type.
   const baseURI = "https://api.backpackguilds.com/metadata/";
-  const contract = await deployer.deploy(artifact, [baseURI]);
+  const contract = await deployer.deploy(artifact, [baseURI, reputationSystemDeployment.address]);
 
   // Show the contract info.
   console.log(`${artifact.contractName} was deployed to ${contract.address}`);

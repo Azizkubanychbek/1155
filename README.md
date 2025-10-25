@@ -10,6 +10,11 @@ Backpack Guilds solves the problem of item sharing in gaming by providing:
 - **Party/Guild Backpack**: Shared inventory system for collaborative resource management
 - **On-Chain Crafting**: Transparent and verifiable item crafting using blockchain recipes
 - **Secure Rentals**: Escrow-based rental system with deposits for security
+- **🆕 Reputation System**: User behavior tracking and trust scores to prevent abuse
+- **🆕 Cooldown Protection**: Prevents rapid-fire revokes and malicious behavior
+- **🆕 Penalty System**: Economic disincentives for early revokes and violations
+- **🆕 Dispute Resolution**: Community-driven conflict resolution mechanism
+- **🆕 Insurance System**: Optional protection against fraud and early revokes
 
 **No gambling mechanics** - This is purely for gaming use cases with legitimate item sharing and crafting.
 
@@ -33,11 +38,19 @@ graph TB
     C --> E[PartyBackpack]
     C --> F[RecipeRegistry]
     C --> G[RentalEscrow]
+    C --> J[ReputationSystem]
+    C --> K[RentalInsurance]
     
     D --> H[ERC1155 Tokens]
     E --> D
     F --> D
     G --> I[ETH Deposits]
+    J --> L[User Reputation]
+    K --> M[Insurance Policies]
+    
+    D --> J
+    G --> J
+    K --> J
     
     style A fill:#e1f5fe
     style C fill:#f3e5f5
@@ -45,6 +58,8 @@ graph TB
     style E fill:#e8f5e8
     style F fill:#e8f5e8
     style G fill:#e8f5e8
+    style J fill:#fff3e0
+    style K fill:#fce4ec
 ```
 
 ### Smart Contracts
@@ -53,6 +68,8 @@ graph TB
 - **PartyBackpack**: Shared inventory system for guilds
 - **RecipeRegistry**: On-chain crafting recipes and execution
 - **RentalEscrow**: Secure rental system with deposits
+- **🆕 ReputationSystem**: User behavior tracking and trust scores
+- **🆕 RentalInsurance**: Optional insurance protection against fraud
 
 ### Frontend
 

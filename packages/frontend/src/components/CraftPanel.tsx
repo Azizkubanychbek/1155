@@ -54,8 +54,8 @@ export function CraftPanel() {
     });
   };
 
-  // Show connection message if not connected
-  if (!isConnected) {
+  // Show connection message if not connected or not hydrated
+  if (!isHydrated || !isConnected) {
     return (
       <div className="space-y-6">
         <h2 className="text-2xl font-bold text-gray-900">Crafting Recipes</h2>

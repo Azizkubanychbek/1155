@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./interfaces/IRentalEscrow.sol";
+import "./ReputationSystem.sol";
 
 /**
  * @title RentalEscrow
@@ -21,8 +22,27 @@ contract RentalEscrow is Ownable, ReentrancyGuard, IRentalEscrow {
     
     // Platform fee (in basis points, e.g., 100 = 1%)
     uint256 public platformFee = 0; // No fee for demo
+    
+    // Reputation system integration
+    ReputationSystem public reputationSystem;
+    
+    // Enhanced protection mechanisms
+    uint256 public constant EARLY_REVOKE_PENALTY = 50; // 50% penalty for early revoke
+    uint256 public constant MIN_RENTAL_DURATION = 1 hours;
+    uint256 public constant DISPUTE_WINDOW = 24 hours;
+    
+    // Dispute tracking
+    mapping(uint256 => bool) public hasDispute;
+    mapping(uint256 => uint256) public disputeTimestamp;
+    
+    // Events for enhanced protection
+    event EarlyRevokePenalty(uint256 indexed rentalId, address indexed lender, uint256 penaltyAmount);
+    event DisputeCreated(uint256 indexed rentalId, address indexed reporter, string reason);
+    event DisputeResolved(uint256 indexed rentalId, bool lenderFault, uint256 penaltyAmount);
 
-    constructor() {}
+    constructor(address _reputationSystem) {
+        reputationSystem = ReputationSystem(_reputationSystem);
+    }
 
     /**
      * @dev Create a new rental
@@ -43,6 +63,13 @@ contract RentalEscrow is Ownable, ReentrancyGuard, IRentalEscrow {
         require(expires > block.timestamp, "RentalEscrow: invalid expiration");
         require(deposit > 0, "RentalEscrow: deposit must be positive");
         require(msg.value >= deposit, "RentalEscrow: insufficient deposit");
+        
+        // Check reputation system
+        require(reputationSystem.canPerformAction(lender), "RentalEscrow: lender reputation too low");
+        require(reputationSystem.canPerformAction(borrower), "RentalEscrow: borrower reputation too low");
+        
+        // Check minimum rental duration
+        require(expires - block.timestamp >= MIN_RENTAL_DURATION, "RentalEscrow: rental too short");
 
         Rental memory newRental = Rental({
             lender: lender,
@@ -164,5 +191,102 @@ contract RentalEscrow is Ownable, ReentrancyGuard, IRentalEscrow {
      */
     function emergencyWithdraw() external onlyOwner {
         payable(owner()).transfer(address(this).balance);
+    }
+    
+    /**
+     * @dev Create a dispute for a rental
+     */
+    function createDispute(uint256 rentalId, string memory reason) external {
+        require(rentalId < _rentalCount, "RentalEscrow: invalid rental ID");
+        Rental storage rental = _rentalMap[rentalId];
+        
+        require(!rental.completed, "RentalEscrow: rental already completed");
+        require(!hasDispute[rentalId], "RentalEscrow: dispute already exists");
+        require(
+            msg.sender == rental.lender || msg.sender == rental.borrower,
+            "RentalEscrow: not authorized to create dispute"
+        );
+        
+        hasDispute[rentalId] = true;
+        disputeTimestamp[rentalId] = block.timestamp;
+        
+        emit DisputeCreated(rentalId, msg.sender, reason);
+    }
+    
+    /**
+     * @dev Resolve a dispute (only owner/DAO)
+     */
+    function resolveDispute(uint256 rentalId, bool lenderFault) external onlyOwner {
+        require(rentalId < _rentalCount, "RentalEscrow: invalid rental ID");
+        require(hasDispute[rentalId], "RentalEscrow: no dispute exists");
+        
+        Rental storage rental = _rentalMap[rentalId];
+        require(!rental.completed, "RentalEscrow: rental already completed");
+        
+        uint256 penaltyAmount = 0;
+        
+        if (lenderFault) {
+            // Lender is at fault - borrower gets compensation
+            penaltyAmount = (rental.deposit * EARLY_REVOKE_PENALTY) / 100;
+            payable(rental.borrower).transfer(penaltyAmount);
+            payable(rental.lender).transfer(rental.deposit - penaltyAmount);
+            
+            // Record violation in reputation system
+            reputationSystem.recordEarlyRevoke(rental.lender, rentalId);
+        } else {
+            // Borrower is at fault - lender gets deposit
+            payable(rental.lender).transfer(rental.deposit);
+        }
+        
+        rental.completed = true;
+        hasDispute[rentalId] = false;
+        
+        emit DisputeResolved(rentalId, lenderFault, penaltyAmount);
+    }
+    
+    /**
+     * @dev Handle early revoke with penalty
+     */
+    function handleEarlyRevoke(uint256 rentalId) external onlyOwner {
+        require(rentalId < _rentalCount, "RentalEscrow: invalid rental ID");
+        Rental storage rental = _rentalMap[rentalId];
+        
+        require(!rental.completed, "RentalEscrow: rental already completed");
+        require(block.timestamp < rental.expires, "RentalEscrow: rental not expired yet");
+        
+        // Calculate penalty
+        uint256 penaltyAmount = (rental.deposit * EARLY_REVOKE_PENALTY) / 100;
+        
+        // Return partial deposit to borrower
+        payable(rental.borrower).transfer(penaltyAmount);
+        payable(rental.lender).transfer(rental.deposit - penaltyAmount);
+        
+        // Record early revoke in reputation system
+        reputationSystem.recordEarlyRevoke(rental.lender, rentalId);
+        
+        rental.completed = true;
+        
+        emit EarlyRevokePenalty(rentalId, rental.lender, penaltyAmount);
+    }
+    
+    /**
+     * @dev Update reputation system address
+     */
+    function setReputationSystem(address _reputationSystem) external onlyOwner {
+        reputationSystem = ReputationSystem(_reputationSystem);
+    }
+    
+    /**
+     * @dev Check if rental has active dispute
+     */
+    function hasActiveDispute(uint256 rentalId) external view returns (bool) {
+        return hasDispute[rentalId];
+    }
+    
+    /**
+     * @dev Get dispute timestamp
+     */
+    function getDisputeTimestamp(uint256 rentalId) external view returns (uint256) {
+        return disputeTimestamp[rentalId];
     }
 }
