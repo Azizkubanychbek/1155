@@ -1,0 +1,23 @@
+{
+  "name": "doom-blockchain-integration",
+  "version": "1.0.0",
+  "description": "DOOM blockchain integration with Backpack Guilds protocol",
+  "main": "test-integration.js",
+  "scripts": {
+    "test": "node test-integration.js",
+    "start": "node test-integration.js"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0"
+  },
+  "devDependencies": {},
+  "keywords": [
+    "doom",
+    "blockchain",
+    "gaming",
+    "ethereum",
+    "zksync"
+  ],
+  "author": "Backpack Guilds Team",
+  "license": "MIT"
+}
