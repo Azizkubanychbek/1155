@@ -38,6 +38,7 @@ interface GameState {
 export function DOOMGame() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const gameLoopRef = useRef<number>();
+  const [mounted, setMounted] = useState(false);
   const [gameState, setGameState] = useState<GameState>({
     player: {
       id: 'player',
@@ -66,6 +67,11 @@ export function DOOMGame() {
   const [keys, setKeys] = useState<Set<string>>(new Set());
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isShooting, setIsShooting] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const { address, isConnected } = useAccount();
 
@@ -187,6 +193,7 @@ export function DOOMGame() {
 
   // Game loop
   useEffect(() => {
+    if (!mounted) return;
     if (gameState.gameOver || gameState.paused) return;
 
     const gameLoop = () => {
@@ -202,7 +209,7 @@ export function DOOMGame() {
         cancelAnimationFrame(gameLoopRef.current);
       }
     };
-  }, [gameState.gameOver, gameState.paused, keys]);
+  }, [mounted, gameState.gameOver, gameState.paused]);
 
   // Update game logic
   const updateGame = () => {
@@ -496,18 +503,13 @@ export function DOOMGame() {
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px Arial';
     ctx.fillText('WASD: Move | Mouse: Aim & Shoot | SPACE: Pause | ESC: Exit', 10, canvas.height - 20);
-    
-    // Debug info
-    ctx.fillStyle = '#ffff00';
-    ctx.font = '10px Arial';
-    ctx.fillText(`Keys: ${Array.from(keys).join(', ')}`, 10, canvas.height - 40);
-    ctx.fillText(`Player: ${Math.round(player.x)}, ${Math.round(player.y)}`, 10, canvas.height - 55);
   };
 
   // Handle keyboard input
   useEffect(() => {
+    if (!mounted) return;
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      console.log('Key down:', e.key);
       setKeys(prev => new Set(prev).add(e.key.toLowerCase()));
       
       if (e.code === 'Space') {
@@ -522,7 +524,6 @@ export function DOOMGame() {
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      console.log('Key up:', e.key);
       setKeys(prev => {
         const newKeys = new Set(prev);
         newKeys.delete(e.key.toLowerCase());
@@ -537,7 +538,7 @@ export function DOOMGame() {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
     };
-  }, []);
+  }, [mounted]);
 
   // Handle player movement - moved to updateGame function
 
@@ -593,6 +594,17 @@ export function DOOMGame() {
       }));
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-black text-white">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold mb-4">🎮 DOOM Blockchain</h1>
+          <p className="text-xl mb-8">Loading game...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!isConnected) {
     return (
