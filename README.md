@@ -311,6 +311,12 @@ This project meets all Xsolla Backpack bounty requirements:
 
 ✅ **Documentation** - Comprehensive README with setup, deployment, and usage instructions
 
+✅ **User Guides** - Complete English documentation:
+- [USER_GUIDE_EN.md](USER_GUIDE_EN.md) - Complete user guide with security mechanisms
+- [QUICK_START_GUIDE_EN.md](QUICK_START_GUIDE_EN.md) - 5-minute quick start guide  
+- [USER_EXPERIENCE_FLOW_EN.md](USER_EXPERIENCE_FLOW_EN.md) - User journey diagrams
+- [SECURITY_MECHANISMS.md](packages/contracts/SECURITY_MECHANISMS.md) - Security features documentation
+
 ✅ **No Gambling** - Pure gaming mechanics focused on item sharing, crafting, and collaboration
 
 ## License
