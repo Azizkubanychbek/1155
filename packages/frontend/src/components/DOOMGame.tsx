@@ -222,7 +222,7 @@ export function DOOMGame() {
       player.x = Math.max(0, Math.min(780, player.x));
       player.y = Math.max(0, Math.min(580, player.y));
 
-      // Check wall collisions
+      // Check wall collisions for player
       for (const wall of newState.walls) {
         if (checkCollision(player, wall)) {
           // Move player back
@@ -235,25 +235,72 @@ export function DOOMGame() {
 
       newState.player = player;
 
-      // Update enemies
+      // Update enemies with improved AI
       newState.enemies = newState.enemies.map(enemy => {
         const newEnemy = { ...enemy };
         
-        // Move towards player
+        // Calculate direction to player
         const dx = player.x - enemy.x;
         const dy = player.y - enemy.y;
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance > 0) {
-          newEnemy.x += (dx / distance) * enemy.speed!;
-          newEnemy.y += (dy / distance) * enemy.speed!;
-        }
-
-        // Check wall collisions for enemies
-        for (const wall of newState.walls) {
-          if (checkCollision(newEnemy, wall)) {
-            newEnemy.x -= (dx / distance) * enemy.speed!;
-            newEnemy.y -= (dy / distance) * enemy.speed!;
+          const moveX = (dx / distance) * enemy.speed!;
+          const moveY = (dy / distance) * enemy.speed!;
+          
+          // Try to move towards player
+          const newX = enemy.x + moveX;
+          const newY = enemy.y + moveY;
+          
+          // Check if new position collides with walls
+          let canMoveX = true;
+          let canMoveY = true;
+          
+          const tempEnemy = { ...enemy, x: newX, y: enemy.y };
+          for (const wall of newState.walls) {
+            if (checkCollision(tempEnemy, wall)) {
+              canMoveX = false;
+              break;
+            }
+          }
+          
+          const tempEnemyY = { ...enemy, x: enemy.x, y: newY };
+          for (const wall of newState.walls) {
+            if (checkCollision(tempEnemyY, wall)) {
+              canMoveY = false;
+              break;
+            }
+          }
+          
+          // Move if possible
+          if (canMoveX) newEnemy.x = newX;
+          if (canMoveY) newEnemy.y = newY;
+          
+          // If stuck, try alternative paths
+          if (!canMoveX && !canMoveY) {
+            // Try moving only horizontally
+            const altX = enemy.x + (Math.random() - 0.5) * enemy.speed! * 2;
+            const altEnemyX = { ...enemy, x: altX, y: enemy.y };
+            let canMoveAltX = true;
+            for (const wall of newState.walls) {
+              if (checkCollision(altEnemyX, wall)) {
+                canMoveAltX = false;
+                break;
+              }
+            }
+            if (canMoveAltX) newEnemy.x = altX;
+            
+            // Try moving only vertically
+            const altY = enemy.y + (Math.random() - 0.5) * enemy.speed! * 2;
+            const altEnemyY = { ...enemy, x: enemy.x, y: altY };
+            let canMoveAltY = true;
+            for (const wall of newState.walls) {
+              if (checkCollision(altEnemyY, wall)) {
+                canMoveAltY = false;
+                break;
+              }
+            }
+            if (canMoveAltY) newEnemy.y = altY;
           }
         }
 
@@ -440,7 +487,7 @@ export function DOOMGame() {
     // Controls
     ctx.fillStyle = '#ffffff';
     ctx.font = '12px Arial';
-    ctx.fillText('WASD: Move | Mouse: Aim & Shoot | SPACE: Pause', 10, canvas.height - 20);
+    ctx.fillText('WASD: Move | Mouse: Aim & Shoot | SPACE: Pause | ESC: Exit', 10, canvas.height - 20);
   };
 
   // Handle keyboard input
@@ -451,6 +498,11 @@ export function DOOMGame() {
       if (e.code === 'Space') {
         e.preventDefault();
         setGameState(prev => ({ ...prev, paused: !prev.paused }));
+      }
+      
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        setGameState(prev => ({ ...prev, gameOver: true }));
       }
     };
 
@@ -471,39 +523,7 @@ export function DOOMGame() {
     };
   }, []);
 
-  // Handle player movement
-  useEffect(() => {
-    if (gameState.gameOver || gameState.paused) return;
-
-    setGameState(prev => {
-      const newState = { ...prev };
-      const player = { ...newState.player };
-      const speed = 3;
-      
-      if (keys.has('w')) player.y -= speed;
-      if (keys.has('s')) player.y += speed;
-      if (keys.has('a')) player.x -= speed;
-      if (keys.has('d')) player.x += speed;
-
-      // Keep player in bounds
-      player.x = Math.max(0, Math.min(780, player.x));
-      player.y = Math.max(0, Math.min(580, player.y));
-
-      // Check wall collisions
-      for (const wall of newState.walls) {
-        if (checkCollision(player, wall)) {
-          // Move player back
-          if (keys.has('w')) player.y += speed;
-          if (keys.has('s')) player.y -= speed;
-          if (keys.has('a')) player.x += speed;
-          if (keys.has('d')) player.x -= speed;
-        }
-      }
-
-      newState.player = player;
-      return newState;
-    });
-  }, [keys, gameState.gameOver, gameState.paused, gameState.walls]);
+  // Handle player movement - moved to updateGame function
 
   // Handle mouse input
   const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -620,6 +640,9 @@ export function DOOMGame() {
               <li><strong>SPACE:</strong> Pause/Resume</li>
               <li><strong>ESC:</strong> Exit game</li>
             </ul>
+            <div className="mt-4 p-3 bg-yellow-600 rounded">
+              <p className="text-sm"><strong>💡 Tip:</strong> Enemies now have improved AI and can navigate around obstacles!</p>
+            </div>
           </div>
 
           <div className="bg-gray-800 p-6 rounded-lg">
