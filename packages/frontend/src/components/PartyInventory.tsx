@@ -6,6 +6,7 @@ import { useBackpack } from '@/hooks/useBackpack';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
+import { ApproveButton } from './ApproveButton';
 
 const DEMO_TOKENS = [
   { id: BigInt(1), name: 'Sword', description: 'A sharp blade for combat' },
@@ -103,6 +104,9 @@ export function PartyInventory() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Party Inventory</h2>
+      
+      {/* Approve PartyBackpack first */}
+      <ApproveButton operator="PartyBackpack" />
       
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {DEMO_TOKENS.map((token) => {

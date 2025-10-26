@@ -6,6 +6,7 @@ import { useBackpack } from '@/hooks/useBackpack';
 import { useAccount, useChainId } from 'wagmi';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
+import { ApproveButton } from './ApproveButton';
 
 export function CraftPanel() {
   const { getAllRecipes, craft, getFormattedRecipes } = useCraft();
@@ -77,6 +78,9 @@ export function CraftPanel() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Crafting Recipes</h2>
+
+      {/* Approve RecipeRegistry first */}
+      <ApproveButton operator="RecipeRegistry" />
 
       <div className="grid gap-6 md:grid-cols-2">
         {recipes.map((recipe) => (
