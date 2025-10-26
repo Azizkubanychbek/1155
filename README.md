@@ -264,7 +264,7 @@ Features:
 
 ### 👨‍💻 Built Solo by One Developer
 
-**Total Development Time**: ~7 days  
+**Total Development Time**: ~2 days  
 **Lines of Code**: ~3,500+ Solidity, ~2,000+ TypeScript  
 **Smart Contracts**: 5 main + 4 interfaces  
 **Frontend Pages**: 6 interactive pages  
