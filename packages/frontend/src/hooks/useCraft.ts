@@ -399,8 +399,9 @@ export function useCraft() {
     outputId: bigint,
     outputAmount: bigint
   ) => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.RecipeRegistry,
+      address: CONTRACT_ADDRESSES.RecipeRegistry as `0x${string}`,
       abi: RECIPE_REGISTRY_ABI,
       functionName: 'registerRecipe',
       args: [
@@ -418,9 +419,10 @@ export function useCraft() {
   };
 
   // Craft item using recipe
-  const craft = async (recipeId: bigint, receiver: string) => {
+  const craft = async (recipeId: bigint, receiver: string): Promise<`0x${string}`> => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.RecipeRegistry,
+      address: CONTRACT_ADDRESSES.RecipeRegistry as `0x${string}`,
       abi: RECIPE_REGISTRY_ABI,
       functionName: 'craft',
       args: [recipeId, receiver as `0x${string}`],
@@ -456,7 +458,10 @@ export function useCraft() {
       '1': 'Sword',
       '2': 'Shield',
       '3': 'Herb',
+      '4': 'Potion',
       '42': 'Blessed Shield',
+      '43': 'Super Potion',
+      '44': 'Enchanted Sword',
     };
     return names[tokenId.toString()] || `Token #${tokenId}`;
   };

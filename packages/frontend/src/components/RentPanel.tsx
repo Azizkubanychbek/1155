@@ -6,6 +6,7 @@ import { useAccount } from 'wagmi';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Input } from './ui/Input';
+import { ApproveButton } from './ApproveButton';
 
 export function RentPanel() {
   const { address } = useAccount();
@@ -67,6 +68,9 @@ export function RentPanel() {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Rental System</h2>
+      
+      {/* Approve RentalEscrow first */}
+      <ApproveButton operator="RentalEscrow" />
       
       <div className="grid gap-6 lg:grid-cols-2">
         <Card title="Create Rental" description="Create a new item rental with deposit">

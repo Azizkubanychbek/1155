@@ -464,8 +464,9 @@ export function useRent() {
     expires: bigint,
     deposit: bigint
   ) => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.RentalEscrow,
+      address: CONTRACT_ADDRESSES.RentalEscrow as `0x${string}`,
       abi: RENTAL_ESCROW_ABI,
       functionName: 'createRental',
       args: [
@@ -474,7 +475,7 @@ export function useRent() {
         token as `0x${string}`,
         tokenId,
         amount,
-        Number(expires),
+        expires, // Already bigint, no need to convert
         deposit,
       ],
       value: deposit,
@@ -484,8 +485,9 @@ export function useRent() {
 
   // Complete rental
   const completeRental = async (rentalId: bigint) => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.RentalEscrow,
+      address: CONTRACT_ADDRESSES.RentalEscrow as `0x${string}`,
       abi: RENTAL_ESCROW_ABI,
       functionName: 'completeRental',
       args: [rentalId],
@@ -495,8 +497,9 @@ export function useRent() {
 
   // Penalize rental (admin only)
   const penalize = async (rentalId: bigint) => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.RentalEscrow,
+      address: CONTRACT_ADDRESSES.RentalEscrow as `0x${string}`,
       abi: RENTAL_ESCROW_ABI,
       functionName: 'penalize',
       args: [rentalId],

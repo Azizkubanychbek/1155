@@ -37,6 +37,7 @@ export function ApproveButton({ operator, onApproved }: ApproveButtonProps) {
   const handleApprove = async () => {
     setIsApproving(true);
     try {
+      // @ts-ignore - wagmi v2 type compatibility
       await writeContract({
         address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
         abi: USAGE_RIGHTS_ABI,

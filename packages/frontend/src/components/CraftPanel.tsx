@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useCraft } from '@/hooks/useCraft';
 import { useBackpack } from '@/hooks/useBackpack';
-import { useAccount, useChainId } from 'wagmi';
+import { useAccount, useChainId, useWaitForTransactionReceipt } from 'wagmi';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { ApproveButton } from './ApproveButton';
@@ -15,14 +15,34 @@ export function CraftPanel() {
   const chainId = useChainId();
   const [crafting, setCrafting] = useState<bigint | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [craftTxHash, setCraftTxHash] = useState<`0x${string}` | undefined>();
 
   const { data: recipesData, isLoading, error } = getAllRecipes();
   const recipes = getFormattedRecipes();
+
+  // Wait for craft transaction to complete
+  const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+    hash: craftTxHash,
+  });
 
   // Handle hydration
   useEffect(() => {
     setIsHydrated(true);
   }, []);
+
+  // Show success message and refetch balances after craft confirmation
+  useEffect(() => {
+    if (isConfirmed && crafting !== null) {
+      const recipe = recipes.find(r => r.id === crafting);
+      if (recipe) {
+        alert(`✅ Успешно скрафчено: ${recipe.output.amount} ${recipe.output.name}!\n\nПроверьте свой инвентарь (Backpack).`);
+      }
+      setCrafting(null);
+      setCraftTxHash(undefined);
+      
+      // Refetch balances will happen automatically due to wagmi polling
+    }
+  }, [isConfirmed, crafting, recipes]);
 
   // Debug logging
   console.log('CraftPanel Debug:', {
@@ -33,7 +53,10 @@ export function CraftPanel() {
     isLoading,
     error,
     recipes,
-    recipesLength: recipes.length
+    recipesLength: recipes.length,
+    crafting,
+    isConfirming,
+    isConfirmed,
   });
 
   const handleCraft = async (recipeId: bigint) => {
@@ -45,11 +68,14 @@ export function CraftPanel() {
     setCrafting(recipeId);
     try {
       console.log('🎯 Crafting with address:', address);
-      await craft(recipeId, address); // ✅ Используем адрес пользователя
+      const hash = await craft(recipeId, address);
+      setCraftTxHash(hash);
+      console.log('✅ Craft transaction sent:', hash);
     } catch (error) {
       console.error('Error crafting:', error);
-    } finally {
+      alert('❌ Ошибка при крафте. Проверьте консоль.');
       setCrafting(null);
+      setCraftTxHash(undefined);
     }
   };
 
@@ -120,11 +146,19 @@ export function CraftPanel() {
               
               <Button
                 onClick={() => handleCraft(recipe.id)}
-                loading={crafting === recipe.id}
-                disabled={!canCraft(recipe) || !recipe.active}
+                loading={crafting === recipe.id || (isConfirming && crafting === recipe.id)}
+                disabled={!canCraft(recipe) || !recipe.active || crafting !== null}
                 className="w-full"
               >
-                {!recipe.active ? 'Recipe Inactive' : canCraft(recipe) ? 'Craft Item' : 'Insufficient Materials'}
+                {crafting === recipe.id && isConfirming ? (
+                  '⏳ Подтверждение...'
+                ) : !recipe.active ? (
+                  'Recipe Inactive'
+                ) : canCraft(recipe) ? (
+                  'Craft Item'
+                ) : (
+                  'Insufficient Materials'
+                )}
               </Button>
             </div>
           </Card>

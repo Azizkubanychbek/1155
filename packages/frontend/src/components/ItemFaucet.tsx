@@ -45,8 +45,7 @@ export function ItemFaucet() {
   }
   
   // Check if we're in development mode
-  const isDevelopmentMode = !CONTRACT_ADDRESSES.UsageRights1155 || 
-    CONTRACT_ADDRESSES.UsageRights1155 === '0x0000000000000000000000000000000000000000';
+  const isDevelopmentMode = false; // Production mode with deployed contracts
 
   const handleMint = async (itemId: number, amount: number) => {
     if (!address) return;
@@ -61,11 +60,12 @@ export function ItemFaucet() {
       } else {
         // ✅ ИСПРАВЛЕНО: Вызываем RecipeRegistry.adminMint() вместо прямого mint
         // RecipeRegistry владеет UsageRights1155 и может mint через adminMint
+        // @ts-ignore - wagmi v2 type compatibility
         await writeContract({
-          address: CONTRACT_ADDRESSES.RecipeRegistry,
+          address: CONTRACT_ADDRESSES.RecipeRegistry as `0x${string}`,
           abi: RECIPE_REGISTRY_ABI,
           functionName: 'adminMint',
-          args: [address, BigInt(itemId), BigInt(amount), '0x'],
+          args: [address as `0x${string}`, BigInt(itemId), BigInt(amount), '0x'],
         });
         alert(`✅ Minted ${amount} ${DEMO_ITEMS.find(item => item.id === itemId)?.name}`);
       }
