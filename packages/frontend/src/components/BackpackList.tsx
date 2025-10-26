@@ -12,12 +12,19 @@ const DEMO_TOKENS = [
   { id: BigInt(3), name: 'Herb', description: 'Healing plant for crafting' },
 ];
 
+// Тип для состояния формы по каждому токену
+type TokenFormState = {
+  userAddress: string;
+  amount: string;
+  expires: string;
+};
+
 export function BackpackList() {
   const { getBalance, setUser, revokeUser } = useBackpack();
   const [granting, setGranting] = useState<bigint | null>(null);
-  const [userAddress, setUserAddress] = useState('');
-  const [amount, setAmount] = useState('');
-  const [expires, setExpires] = useState('');
+  
+  // Отдельное состояние для каждого токена!
+  const [formStates, setFormStates] = useState<Record<string, TokenFormState>>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Handle hydration
@@ -25,16 +32,36 @@ export function BackpackList() {
     setIsHydrated(true);
   }, []);
 
+  // Получить состояние формы для конкретного токена
+  const getFormState = (tokenId: bigint): TokenFormState => {
+    return formStates[tokenId.toString()] || { userAddress: '', amount: '', expires: '' };
+  };
+
+  // Обновить состояние формы для конкретного токена
+  const updateFormState = (tokenId: bigint, field: keyof TokenFormState, value: string) => {
+    setFormStates(prev => ({
+      ...prev,
+      [tokenId.toString()]: {
+        ...getFormState(tokenId),
+        [field]: value,
+      },
+    }));
+  };
+
   const handleGrantUsage = async (tokenId: bigint) => {
-    if (!userAddress || !amount || !expires) return;
+    const formState = getFormState(tokenId);
+    if (!formState.userAddress || !formState.amount || !formState.expires) return;
     
     setGranting(tokenId);
     try {
-      const expiresTimestamp = Math.floor(Date.now() / 1000) + parseInt(expires) * 3600;
-      await setUser(tokenId, userAddress, BigInt(amount), BigInt(expiresTimestamp));
-      setUserAddress('');
-      setAmount('');
-      setExpires('');
+      const expiresTimestamp = Math.floor(Date.now() / 1000) + parseInt(formState.expires) * 3600;
+      await setUser(tokenId, formState.userAddress, BigInt(formState.amount), BigInt(expiresTimestamp));
+      
+      // Очистить форму только для этого токена
+      setFormStates(prev => ({
+        ...prev,
+        [tokenId.toString()]: { userAddress: '', amount: '', expires: '' },
+      }));
     } catch (error) {
       console.error('Error granting usage:', error);
     } finally {
@@ -43,8 +70,11 @@ export function BackpackList() {
   };
 
   const handleRevokeUsage = async (tokenId: bigint) => {
+    const formState = getFormState(tokenId);
+    if (!formState.userAddress) return;
+    
     try {
-      await revokeUser(tokenId, userAddress);
+      await revokeUser(tokenId, formState.userAddress);
     } catch (error) {
       console.error('Error revoking usage:', error);
     }
@@ -57,6 +87,7 @@ export function BackpackList() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {DEMO_TOKENS.map((token) => {
           const { data: balance, isLoading } = getBalance(token.id);
+          const formState = getFormState(token.id);
           
           return (
             <Card key={token.id.toString()} title={token.name}>
@@ -71,8 +102,8 @@ export function BackpackList() {
                   <Input
                     label="Grant to Address"
                     placeholder="0x..."
-                    value={userAddress}
-                    onChange={(e) => setUserAddress(e.target.value)}
+                    value={formState.userAddress}
+                    onChange={(e) => updateFormState(token.id, 'userAddress', e.target.value)}
                   />
                   
                   <div className="grid grid-cols-2 gap-3">
@@ -80,16 +111,16 @@ export function BackpackList() {
                       label="Amount"
                       type="number"
                       placeholder="1"
-                      value={amount}
-                      onChange={(e) => setAmount(e.target.value)}
+                      value={formState.amount}
+                      onChange={(e) => updateFormState(token.id, 'amount', e.target.value)}
                     />
                     
                     <Input
                       label="Hours"
                       type="number"
                       placeholder="24"
-                      value={expires}
-                      onChange={(e) => setExpires(e.target.value)}
+                      value={formState.expires}
+                      onChange={(e) => updateFormState(token.id, 'expires', e.target.value)}
                     />
                   </div>
                   
@@ -97,7 +128,7 @@ export function BackpackList() {
                     <Button
                       onClick={() => handleGrantUsage(token.id)}
                       loading={granting === token.id}
-                      disabled={!userAddress || !amount || !expires}
+                      disabled={!formState.userAddress || !formState.amount || !formState.expires}
                       size="sm"
                     >
                       Grant Usage
@@ -107,6 +138,7 @@ export function BackpackList() {
                       onClick={() => handleRevokeUsage(token.id)}
                       variant="outline"
                       size="sm"
+                      disabled={!formState.userAddress}
                     >
                       Revoke
                     </Button>

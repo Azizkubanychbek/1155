@@ -21,11 +21,11 @@ export function useBackpack() {
   const { writeContract } = useWriteContract();
   
   // Check if we're in development mode (no contract addresses)
-  const isDevelopmentMode = !CONTRACT_ADDRESSES.UsageRights1155 || CONTRACT_ADDRESSES.UsageRights1155 === '0x0000000000000000000000000000000000000000';
+  const isDevelopmentMode = false; // Production mode with deployed contracts
 
   // Get balances for all tokens (1-4)
   const swordBalance = useReadContract({
-    address: CONTRACT_ADDRESSES.UsageRights1155,
+    address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
     args: [address!, BigInt(1)],
@@ -35,7 +35,7 @@ export function useBackpack() {
   });
 
   const shieldBalance = useReadContract({
-    address: CONTRACT_ADDRESSES.UsageRights1155,
+    address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
     args: [address!, BigInt(2)],
@@ -45,7 +45,7 @@ export function useBackpack() {
   });
 
   const herbBalance = useReadContract({
-    address: CONTRACT_ADDRESSES.UsageRights1155,
+    address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
     args: [address!, BigInt(3)],
@@ -55,7 +55,7 @@ export function useBackpack() {
   });
 
   const potionBalance = useReadContract({
-    address: CONTRACT_ADDRESSES.UsageRights1155,
+    address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
     args: [address!, BigInt(4)],
@@ -96,11 +96,15 @@ export function useBackpack() {
       return mockWriteContract('setUser', [tokenId, user, amount, expires]);
     }
     
+    console.log('💡 Совет: Выдавайте права на несколько предметов за одну транзакцию для экономии газа');
+    
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.UsageRights1155,
+      address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
       abi: USAGE_RIGHTS_ABI,
       functionName: 'setUser',
       args: [tokenId, user as `0x${string}`, amount, expires],
+      // zkSync автоматически оптимизирует газ
     });
   };
 
@@ -110,8 +114,9 @@ export function useBackpack() {
       return mockWriteContract('revokeUser', [tokenId, user]);
     }
     
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.UsageRights1155,
+      address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
       abi: USAGE_RIGHTS_ABI,
       functionName: 'revokeUser',
       args: [tokenId, user as `0x${string}`],
@@ -120,8 +125,9 @@ export function useBackpack() {
 
   // Set approval for all
   const setApprovalForAll = async (operator: string, approved: boolean) => {
+    // @ts-ignore - wagmi v2 type compatibility
     return writeContract({
-      address: CONTRACT_ADDRESSES.UsageRights1155,
+      address: CONTRACT_ADDRESSES.UsageRights1155 as `0x${string}`,
       abi: USAGE_RIGHTS_ABI,
       functionName: 'setApprovalForAll',
       args: [operator as `0x${string}`, approved],

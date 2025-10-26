@@ -1,11 +1,11 @@
 import { createPublicClient, http } from 'viem';
 import { defineChain } from 'viem';
 
-// Define Xsolla ZK Sepolia chain
-export const xsollaZkSepolia = defineChain({
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 0,
-  name: 'Xsolla ZK Sepolia',
-  network: 'xsolla-zk-sepolia',
+// Define zkSync Sepolia chain
+export const zkSyncSepolia = defineChain({
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 300,
+  name: 'zkSync Sepolia',
+  network: 'zksync-sepolia',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -13,20 +13,20 @@ export const xsollaZkSepolia = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || ''],
+      http: [process.env.NEXT_PUBLIC_ZKSYNC_RPC || 'https://sepolia.era.zksync.dev'],
     },
     public: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || ''],
+      http: [process.env.NEXT_PUBLIC_ZKSYNC_RPC || 'https://sepolia.era.zksync.dev'],
     },
   },
   blockExplorers: {
-    default: { name: 'Xsolla ZK Explorer', url: 'https://explorer.xsolla-zk.com' },
+    default: { name: 'zkSync Explorer', url: 'https://sepolia.explorer.zksync.io' },
   },
   testnet: true,
 });
 
-// Create public client for Xsolla ZK Sepolia
+// Create public client for zkSync Sepolia
 export const publicClient = createPublicClient({
-  chain: xsollaZkSepolia,
+  chain: zkSyncSepolia,
   transport: http(),
 });

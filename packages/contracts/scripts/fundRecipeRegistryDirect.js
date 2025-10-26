@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 
-const RPC_URL = "https://zkrpc-sepolia.xsollazk.com";
+const RPC_URL = "https://sepolia.era.zksync.dev";
 const PRIVATE_KEY = "0xcbd0632c261aa3c4724616833151488df591ee1372c9982cac661ad773d8f42c";
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -68,3 +68,4 @@ async function fundRecipeRegistry() {
 }
 
 fundRecipeRegistry();
+

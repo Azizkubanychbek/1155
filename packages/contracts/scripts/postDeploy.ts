@@ -30,8 +30,8 @@ export const CONTRACT_ADDRESSES = {
 } as const;
 
 export const CHAIN_CONFIG = {
-  chainId: Number(process.env.XSOLLA_ZK_CHAIN_ID) || 0,
-  rpcUrl: process.env.XSOLLA_ZK_SEPOLIA_RPC || ""
+  chainId: Number(process.env.ZKSYNC_CHAIN_ID) || 300,
+  rpcUrl: process.env.ZKSYNC_SEPOLIA_RPC || "https://sepolia.era.zksync.dev"
 } as const;
 `;
 
@@ -53,8 +53,8 @@ export const CONTRACT_ADDRESSES = {
 } as const;
 
 export const CHAIN_CONFIG = {
-  chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 0,
-  rpcUrl: process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || ""
+  chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 300,
+  rpcUrl: process.env.NEXT_PUBLIC_ZKSYNC_RPC || "https://sepolia.era.zksync.dev"
 } as const;
 `;
 

@@ -14,7 +14,7 @@ export default function HomePage() {
               Backpack Guilds
             </h1>
             <p className="mt-6 text-lg leading-8 text-gray-600 max-w-2xl mx-auto">
-              A gaming protocol on Xsolla ZK that enables temporary item usage rights, 
+              A gaming protocol on zkSync that enables temporary item usage rights, 
               party inventory sharing, and on-chain crafting for gaming guilds.
             </p>
             <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -89,7 +89,7 @@ export default function HomePage() {
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900">Architecture</h2>
             <p className="mt-4 text-lg text-gray-600">
-              Modular protocol built on Xsolla ZK for gaming use cases
+              Modular protocol built on zkSync for gaming use cases
             </p>
           </div>
 
@@ -143,7 +143,7 @@ export default function HomePage() {
         <div className="container">
           <div className="text-center">
             <p className="text-gray-400">
-              Built on Xsolla ZK • No gambling mechanics • Gaming use case
+              Built on zkSync • No gambling mechanics • Gaming use case
             </p>
             <p className="mt-2 text-sm text-gray-500">
               MIT License • Demo version

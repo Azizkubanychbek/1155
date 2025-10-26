@@ -36,9 +36,15 @@ export function CraftPanel() {
   });
 
   const handleCraft = async (recipeId: bigint) => {
+    if (!address) {
+      console.error('No wallet address');
+      return;
+    }
+    
     setCrafting(recipeId);
     try {
-      await craft(recipeId, '0x0000000000000000000000000000000000000000'); // You'd use the actual user address
+      console.log('🎯 Crafting with address:', address);
+      await craft(recipeId, address); // ✅ Используем адрес пользователя
     } catch (error) {
       console.error('Error crafting:', error);
     } finally {

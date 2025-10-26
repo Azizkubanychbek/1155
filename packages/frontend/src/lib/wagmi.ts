@@ -2,11 +2,11 @@ import { createConfig, http } from 'wagmi';
 import { defineChain } from 'viem';
 import { injected, metaMask } from 'wagmi/connectors';
 
-// Define Xsolla ZK Sepolia chain
-export const xsollaZkSepolia = defineChain({
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 555776,
-  name: 'Xsolla ZK Sepolia Testnet',
-  network: 'xsolla-zk-sepolia',
+// Define zkSync Sepolia chain
+export const zkSyncSepolia = defineChain({
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 300,
+  name: 'zkSync Sepolia Testnet',
+  network: 'zksync-sepolia',
   nativeCurrency: {
     decimals: 18,
     name: 'Ether',
@@ -14,21 +14,21 @@ export const xsollaZkSepolia = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://zkrpc-sepolia.xsollazk.com'],
+      http: [process.env.NEXT_PUBLIC_ZKSYNC_RPC || 'https://sepolia.era.zksync.dev'],
     },
     public: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://zkrpc-sepolia.xsollazk.com'],
+      http: [process.env.NEXT_PUBLIC_ZKSYNC_RPC || 'https://sepolia.era.zksync.dev'],
     },
   },
   blockExplorers: {
-    default: { name: 'Xsolla ZK Explorer', url: 'https://explorer-sepolia.xsollazk.com' },
+    default: { name: 'zkSync Explorer', url: 'https://sepolia.explorer.zksync.io' },
   },
   testnet: true,
 });
 
 // Create wagmi config with client-side only connectors
 export const config = createConfig({
-  chains: [xsollaZkSepolia],
+  chains: [zkSyncSepolia],
   connectors: [
     injected(),
     metaMask({
@@ -39,9 +39,9 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [xsollaZkSepolia.id]: http({
-      batch: false, // Disable batching for zkSync
-    }),
+    [zkSyncSepolia.id]: http(),
   },
   ssr: false, // Disable SSR for wallet connectors
+  // Add gas configuration for zkSync
+  pollingInterval: 4000,
 });

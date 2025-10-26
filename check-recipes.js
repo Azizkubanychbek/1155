@@ -3,7 +3,7 @@ const { ethers } = require('ethers');
 async function checkRecipes() {
   try {
     const provider = new ethers.JsonRpcProvider('https://sepolia.era.zksync.dev');
-    const contractAddress = '0x9628fa7Aaac8d27D92c4AF1F1eBF83024d0B7A04';
+    const contractAddress = '0xde41e18E60446f61B7cfc08139D39860CF6eE64D'; // NEW RecipeRegistry
     
     const abi = [
       'function getAllRecipes() view returns (tuple(tuple(address token, uint256 id, uint256 amount)[] inputs, address outputToken, uint256 outputId, uint256 outputAmount, bool active)[])',

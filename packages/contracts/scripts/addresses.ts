@@ -10,6 +10,6 @@ export const CONTRACT_ADDRESSES = {
 } as const;
 
 export const CHAIN_CONFIG = {
-  chainId: 555776,
-  rpcUrl: "https://zkrpc-sepolia.xsollazk.com"
+  chainId: 300,
+  rpcUrl: "https://sepolia.era.zksync.dev"
 } as const;

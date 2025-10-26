@@ -13,14 +13,21 @@ const DEMO_TOKENS = [
   { id: BigInt(3), name: 'Herb', description: 'Healing plant for crafting' },
 ];
 
+// Тип для состояния формы по каждому токену
+type TokenFormState = {
+  userAddress: string;
+  amount: string;
+  expires: string;
+};
+
 export function PartyInventory() {
   const { getPartyBalance, getActiveUsers, deposit, grantUsage, reclaim } = useParty();
   const { getBalance } = useBackpack();
   const [depositing, setDepositing] = useState<bigint | null>(null);
   const [granting, setGranting] = useState<bigint | null>(null);
-  const [userAddress, setUserAddress] = useState('');
-  const [amount, setAmount] = useState('');
-  const [expires, setExpires] = useState('');
+  
+  // Отдельное состояние для каждого токена!
+  const [formStates, setFormStates] = useState<Record<string, TokenFormState>>({});
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Handle hydration
@@ -28,13 +35,31 @@ export function PartyInventory() {
     setIsHydrated(true);
   }, []);
 
+  // Получить состояние формы для конкретного токена
+  const getFormState = (tokenId: bigint): TokenFormState => {
+    return formStates[tokenId.toString()] || { userAddress: '', amount: '', expires: '' };
+  };
+
+  // Обновить состояние формы для конкретного токена
+  const updateFormState = (tokenId: bigint, field: keyof TokenFormState, value: string) => {
+    setFormStates(prev => ({
+      ...prev,
+      [tokenId.toString()]: {
+        ...getFormState(tokenId),
+        [field]: value,
+      },
+    }));
+  };
+
   const handleDeposit = async (tokenId: bigint) => {
-    if (!amount) return;
+    const formState = getFormState(tokenId);
+    if (!formState.amount) return;
     
     setDepositing(tokenId);
     try {
-      await deposit(tokenId, BigInt(amount));
-      setAmount('');
+      await deposit(tokenId, BigInt(formState.amount));
+      // Очистить только amount для этого токена
+      updateFormState(tokenId, 'amount', '');
     } catch (error) {
       console.error('Error depositing:', error);
     } finally {
@@ -43,15 +68,19 @@ export function PartyInventory() {
   };
 
   const handleGrantUsage = async (tokenId: bigint) => {
-    if (!userAddress || !amount || !expires) return;
+    const formState = getFormState(tokenId);
+    if (!formState.userAddress || !formState.amount || !formState.expires) return;
     
     setGranting(tokenId);
     try {
-      const expiresTimestamp = Math.floor(Date.now() / 1000) + parseInt(expires) * 3600;
-      await grantUsage(userAddress, tokenId, BigInt(amount), BigInt(expiresTimestamp));
-      setUserAddress('');
-      setAmount('');
-      setExpires('');
+      const expiresTimestamp = Math.floor(Date.now() / 1000) + parseInt(formState.expires) * 3600;
+      await grantUsage(formState.userAddress, tokenId, BigInt(formState.amount), BigInt(expiresTimestamp));
+      
+      // Очистить форму только для этого токена
+      setFormStates(prev => ({
+        ...prev,
+        [tokenId.toString()]: { userAddress: '', amount: '', expires: '' },
+      }));
     } catch (error) {
       console.error('Error granting usage:', error);
     } finally {
@@ -60,11 +89,12 @@ export function PartyInventory() {
   };
 
   const handleReclaim = async (tokenId: bigint) => {
-    if (!amount) return;
+    const formState = getFormState(tokenId);
+    if (!formState.amount) return;
     
     try {
-      await reclaim(tokenId, BigInt(amount));
-      setAmount('');
+      await reclaim(tokenId, BigInt(formState.amount));
+      updateFormState(tokenId, 'amount', '');
     } catch (error) {
       console.error('Error reclaiming:', error);
     }
@@ -79,6 +109,7 @@ export function PartyInventory() {
           const { data: balance } = getBalance(token.id);
           const { data: partyBalance } = getPartyBalance(token.id);
           const { data: activeUsers } = getActiveUsers(token.id);
+          const formState = getFormState(token.id);
           
           return (
             <Card key={token.id.toString()} title={token.name}>
@@ -99,19 +130,19 @@ export function PartyInventory() {
 
                 <div className="space-y-3">
                   <div className="border-t pt-3">
-                    <h4 className="font-medium text-gray-900">Deposit to Party</h4>
-                    <div className="mt-2 flex space-x-2">
+                    <h4 className="font-medium text-gray-900 mb-2">Deposit to Party</h4>
+                    <div className="flex space-x-2">
                       <Input
                         placeholder="Amount"
                         type="number"
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value)}
+                        value={formState.amount}
+                        onChange={(e) => updateFormState(token.id, 'amount', e.target.value)}
                         className="flex-1"
                       />
                       <Button
                         onClick={() => handleDeposit(token.id)}
                         loading={depositing === token.id}
-                        disabled={!amount}
+                        disabled={!formState.amount}
                         size="sm"
                       >
                         Deposit
@@ -120,13 +151,13 @@ export function PartyInventory() {
                   </div>
 
                   <div className="border-t pt-3">
-                    <h4 className="font-medium text-gray-900">Grant Usage</h4>
-                    <div className="mt-2 space-y-2">
+                    <h4 className="font-medium text-gray-900 mb-2">Grant Usage</h4>
+                    <div className="space-y-2">
                       <Input
                         label="To Address"
                         placeholder="0x..."
-                        value={userAddress}
-                        onChange={(e) => setUserAddress(e.target.value)}
+                        value={formState.userAddress}
+                        onChange={(e) => updateFormState(token.id, 'userAddress', e.target.value)}
                       />
                       
                       <div className="grid grid-cols-2 gap-2">
@@ -134,16 +165,16 @@ export function PartyInventory() {
                           label="Amount"
                           type="number"
                           placeholder="1"
-                          value={amount}
-                          onChange={(e) => setAmount(e.target.value)}
+                          value={formState.amount}
+                          onChange={(e) => updateFormState(token.id, 'amount', e.target.value)}
                         />
                         
                         <Input
                           label="Hours"
                           type="number"
                           placeholder="24"
-                          value={expires}
-                          onChange={(e) => setExpires(e.target.value)}
+                          value={formState.expires}
+                          onChange={(e) => updateFormState(token.id, 'expires', e.target.value)}
                         />
                       </div>
                       
@@ -151,7 +182,7 @@ export function PartyInventory() {
                         <Button
                           onClick={() => handleGrantUsage(token.id)}
                           loading={granting === token.id}
-                          disabled={!userAddress || !amount || !expires}
+                          disabled={!formState.userAddress || !formState.amount || !formState.expires}
                           size="sm"
                         >
                           Grant
@@ -161,6 +192,7 @@ export function PartyInventory() {
                           onClick={() => handleReclaim(token.id)}
                           variant="outline"
                           size="sm"
+                          disabled={!formState.amount}
                         >
                           Reclaim
                         </Button>

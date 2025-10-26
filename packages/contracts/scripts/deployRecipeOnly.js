@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 
-const RPC_URL = "https://zkrpc-sepolia.xsollazk.com";
+const RPC_URL = "https://sepolia.era.zksync.dev";
 const PRIVATE_KEY = "0xcbd0632c261aa3c4724616833151488df591ee1372c9982cac661ad773d8f42c";
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -26,7 +26,7 @@ async function deployRecipeOnly() {
       
       // Now try to deploy using Hardhat
       console.log("🚀 Deploying RecipeRegistry...");
-      const { stdout } = await execAsync('npx hardhat run scripts/deploy.js --network xsollaZkSepolia');
+      const { stdout } = await execAsync('npx hardhat run scripts/deploy.js --network zkSyncSepolia');
       console.log("✅ Deployment successful");
       console.log(stdout);
       
@@ -92,3 +92,4 @@ async function deployRecipeOnly() {
 }
 
 deployRecipeOnly();
+

@@ -2,7 +2,7 @@ const { ethers } = require("ethers");
 const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, "../.env") });
 
-const RPC_URL = process.env.XSOLLA_ZK_SEPOLIA_RPC || "https://zkrpc-sepolia.xsollazk.com";
+const RPC_URL = process.env.ZKSYNC_SEPOLIA_RPC || "https://sepolia.era.zksync.dev";
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
 
 if (!PRIVATE_KEY) {

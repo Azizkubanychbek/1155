@@ -30,7 +30,7 @@ console.log('RecipeRegistry:', recipeRegistryAddress || 'Not deployed');
 console.log('RentalEscrow:', rentalEscrowAddress || 'Not deployed');
 
 // Generate frontend .env.local content
-const frontendEnv = `NEXT_PUBLIC_XSOLLA_ZK_RPC=https://sepolia.era.zksync.dev
+const frontendEnv = `NEXT_PUBLIC_ZKSYNC_RPC=https://sepolia.era.zksync.dev
 NEXT_PUBLIC_CHAIN_ID=300
 NEXT_PUBLIC_USAGE_RIGHTS_ADDRESS=${usageRightsAddress || ''}
 NEXT_PUBLIC_PARTY_BACKPACK_ADDRESS=${partyBackpackAddress || ''}

@@ -7,7 +7,7 @@ import { ClientNavbar } from '@/components/ClientNavbar';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Backpack Guilds - Gaming Protocol on Xsolla ZK',
+  title: 'Backpack Guilds - Gaming Protocol on zkSync',
   description: 'Temporary item usage rights, party inventory, and on-chain crafting for gaming guilds',
 };
 

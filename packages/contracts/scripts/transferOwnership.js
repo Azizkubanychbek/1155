@@ -5,7 +5,7 @@ async function main() {
   console.log("🔑 Transferring ownership of contracts...\n");
 
   // Initialize provider
-  const provider = new Provider("https://zkrpc-sepolia.xsollazk.com");
+  const provider = new Provider("https://sepolia.era.zksync.dev");
   
   // Initialize wallet
   const privateKey = "0xcbd0632c261aa3c4724616833151488df591ee1372c9982cac661ad773d8f42c";

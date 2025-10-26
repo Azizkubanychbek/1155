@@ -74,4 +74,32 @@ interface IUsageRights1155 {
      * @param user The user to revoke rights from
      */
     function revokeUser(uint256 id, address user) external;
+
+    /**
+     * @dev Mint tokens (only owner)
+     * @param to The address to mint to
+     * @param id The token ID
+     * @param amount The amount to mint
+     * @param data Additional data
+     */
+    function mint(
+        address to,
+        uint256 id,
+        uint256 amount,
+        bytes memory data
+    ) external;
+
+    /**
+     * @dev Batch mint tokens (only owner)
+     * @param to The address to mint to
+     * @param ids Array of token IDs
+     * @param amounts Array of amounts to mint
+     * @param data Additional data
+     */
+    function mintBatch(
+        address to,
+        uint256[] memory ids,
+        uint256[] memory amounts,
+        bytes memory data
+    ) external;
 }

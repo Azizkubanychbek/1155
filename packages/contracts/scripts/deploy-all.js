@@ -57,7 +57,7 @@ async function main() {
     
     // Update frontend .env.local
     const frontendEnvPath = path.join(__dirname, '..', '..', 'frontend', '.env.local');
-    const frontendEnv = `NEXT_PUBLIC_XSOLLA_ZK_RPC=https://sepolia.era.zksync.dev
+    const frontendEnv = `NEXT_PUBLIC_ZKSYNC_RPC=https://sepolia.era.zksync.dev
 NEXT_PUBLIC_CHAIN_ID=300
 NEXT_PUBLIC_USAGE_RIGHTS_ADDRESS=${addresses.UsageRights1155}
 NEXT_PUBLIC_PARTY_BACKPACK_ADDRESS=${addresses.PartyBackpack}

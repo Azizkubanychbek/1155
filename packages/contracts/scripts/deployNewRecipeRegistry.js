@@ -1,6 +1,6 @@
 const { ethers } = require("ethers");
 
-const RPC_URL = "https://zkrpc-sepolia.xsollazk.com";
+const RPC_URL = "https://sepolia.era.zksync.dev";
 const PRIVATE_KEY = "0xcbd0632c261aa3c4724616833151488df591ee1372c9982cac661ad773d8f42c";
 
 const provider = new ethers.JsonRpcProvider(RPC_URL);
@@ -69,7 +69,7 @@ main().catch((error) => {
       fs.writeFileSync('scripts/tempDeploy.js', deployScript);
       
       // Run the deploy script
-      const { stdout } = await execAsync('npx hardhat run scripts/tempDeploy.js --network xsollaZkSepolia');
+      const { stdout } = await execAsync('npx hardhat run scripts/tempDeploy.js --network zkSyncSepolia');
       console.log("✅ Deployment successful");
       console.log(stdout);
       
@@ -83,7 +83,7 @@ main().catch((error) => {
       // Fallback: manual deployment
       console.log("🔄 Trying manual deployment...");
       console.log("❌ Cannot deploy without proper Hardhat setup");
-      console.log("💡 Please run: npx hardhat run scripts/deploy.js --network xsollaZkSepolia");
+      console.log("💡 Please run: npx hardhat run scripts/deploy.js --network zkSyncSepolia");
     }
 
   } catch (error) {
@@ -92,3 +92,4 @@ main().catch((error) => {
 }
 
 deployNewRecipeRegistry();
+

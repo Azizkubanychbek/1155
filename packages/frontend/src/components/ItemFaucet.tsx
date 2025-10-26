@@ -7,8 +7,8 @@ import { Card } from './ui/Card';
 import { CONTRACT_ADDRESSES } from '@/lib/addresses';
 import { mockWriteContract } from '@/lib/mocks';
 
-// UsageRights1155 ABI for minting
-const USAGE_RIGHTS_ABI = [
+// RecipeRegistry ABI for adminMint (owner can mint through RecipeRegistry)
+const RECIPE_REGISTRY_ABI = [
   {
     "inputs": [
       {"internalType": "address", "name": "to", "type": "address"},
@@ -16,7 +16,7 @@ const USAGE_RIGHTS_ABI = [
       {"internalType": "uint256", "name": "amount", "type": "uint256"},
       {"internalType": "bytes", "name": "data", "type": "bytes"}
     ],
-    "name": "mint",
+    "name": "adminMint",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -59,11 +59,12 @@ export function ItemFaucet() {
         await mockWriteContract('mint', [address, itemId, amount, '0x']);
         alert(`✅ Minted ${amount} ${DEMO_ITEMS.find(item => item.id === itemId)?.name} (Mock Mode)`);
       } else {
-        // Real contract call
+        // ✅ ИСПРАВЛЕНО: Вызываем RecipeRegistry.adminMint() вместо прямого mint
+        // RecipeRegistry владеет UsageRights1155 и может mint через adminMint
         await writeContract({
-          address: CONTRACT_ADDRESSES.UsageRights1155,
-          abi: USAGE_RIGHTS_ABI,
-          functionName: 'mint',
+          address: CONTRACT_ADDRESSES.RecipeRegistry,
+          abi: RECIPE_REGISTRY_ABI,
+          functionName: 'adminMint',
           args: [address, BigInt(itemId), BigInt(amount), '0x'],
         });
         alert(`✅ Minted ${amount} ${DEMO_ITEMS.find(item => item.id === itemId)?.name}`);
@@ -129,10 +130,9 @@ export function ItemFaucet() {
         ))}
       </div>
       
-      <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-        <p className="text-sm text-blue-800">
-          💡 <strong>Tip:</strong> In production mode, you need to be the contract owner to mint items. 
-          Use the seed script for automatic item creation.
+      <div className="mt-4 p-3 bg-green-50 rounded-lg">
+        <p className="text-sm text-green-800">
+          ✅ <strong>Fixed:</strong> Now using RecipeRegistry.adminMint() - normal gas fees!
         </p>
       </div>
     </Card>

@@ -26,7 +26,7 @@ async function getAddresses() {
     }
 
     // Update frontend .env.local
-    let frontendEnvContent = `NEXT_PUBLIC_XSOLLA_ZK_RPC=https://sepolia.era.zksync.dev
+    let frontendEnvContent = `NEXT_PUBLIC_ZKSYNC_RPC=https://sepolia.era.zksync.dev
 NEXT_PUBLIC_CHAIN_ID=300
 NEXT_PUBLIC_USAGE_RIGHTS_ADDRESS=${addresses.UsageRights1155}
 NEXT_PUBLIC_PARTY_BACKPACK_ADDRESS=${addresses.PartyBackpack}

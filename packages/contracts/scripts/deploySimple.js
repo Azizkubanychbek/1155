@@ -6,10 +6,10 @@ const path = require("path");
 require("dotenv").config();
 
 async function main() {
-  console.log("🚀 Starting deployment to Xsolla ZK Sepolia...\n");
+  console.log("🚀 Starting deployment to zkSync Sepolia...\n");
 
   // Initialize provider
-  const provider = new Provider("https://zkrpc-sepolia.xsollazk.com");
+  const provider = new Provider("https://sepolia.era.zksync.dev");
   
   // Initialize wallet
   const privateKey = process.env.PRIVATE_KEY;
@@ -27,7 +27,7 @@ async function main() {
   
   if (balance.toString() === "0") {
     console.log("❌ No ETH in wallet!");
-    console.log("🔗 Get testnet ETH from: https://faucet.xsollazk.com/faucet");
+    console.log("🔗 Get testnet ETH from: https://sepolia.faucet.zksync.io");
     console.log(`📋 Your address: ${wallet.address}\n`);
     process.exit(1);
   }
@@ -86,8 +86,8 @@ export const CONTRACT_ADDRESSES = {
 } as const;
 
 export const CHAIN_CONFIG = {
-  chainId: 555776,
-  rpcUrl: "https://zkrpc-sepolia.xsollazk.com"
+  chainId: 300,
+  rpcUrl: "https://sepolia.era.zksync.dev"
 } as const;
 `;
     fs.writeFileSync(contractsAddressesPath, contractsAddressesContent);
@@ -102,7 +102,7 @@ export const CHAIN_CONFIG = {
     console.log("\n📋 Contract Addresses:");
     console.log(JSON.stringify(addresses, null, 2));
     console.log("\n🔗 View on Block Explorer:");
-    console.log(`https://explorer-sepolia.xsollazk.com/address/${addresses.UsageRights1155}`);
+    console.log(`https://sepolia.explorer.zksync.io/address/${addresses.UsageRights1155}`);
 
   } catch (error) {
     console.error("\n❌ Deployment failed:", error);

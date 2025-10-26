@@ -4,11 +4,11 @@ async function checkBalances() {
   console.log('🎮 Checking item balances...');
   
   try {
-    // Connect to Xsolla ZK Sepolia Testnet
-    const provider = new ethers.JsonRpcProvider('https://zkrpc-sepolia.xsollazk.com');
+    // Connect to zkSync Sepolia Testnet
+    const provider = new ethers.JsonRpcProvider('https://sepolia.era.zksync.dev');
     
-    // Contract address (new deployment)
-    const contractAddress = "0x9E270e38Bf69Bf35B3279B9f4A6fA66C584A83A1";
+    // Contract address (updated deployment)
+    const contractAddress = "0x9E270e38Bf69Bf35B3279B9f4A6fA66C584A83A1"; // NEW UsageRights1155
     
     // Your wallet address
     const walletAddress = "0xB468B3837e185B59594A100c1583a98C79b524F3";
@@ -22,7 +22,7 @@ async function checkBalances() {
       { id: 42, name: 'Blessed Shield' }
     ];
     
-    console.log('📡 Network: Xsolla ZK Sepolia (Testnet)');
+    console.log('📡 Network: zkSync Sepolia (Testnet)');
     console.log('🏗️ Contract: ' + contractAddress);
     console.log('👤 Wallet: ' + walletAddress);
     console.log('');
