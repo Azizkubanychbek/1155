@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
+import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "./interfaces/IRecipeRegistry.sol";
 import "./UsageRights1155.sol";
 
@@ -11,7 +12,7 @@ import "./UsageRights1155.sol";
  * @title RecipeRegistry
  * @dev On-chain crafting system with recipe management
  */
-contract RecipeRegistry is Ownable, ReentrancyGuard, IRecipeRegistry {
+contract RecipeRegistry is Ownable, ReentrancyGuard, ERC1155Holder, IRecipeRegistry {
     // Array of all recipes
     Recipe[] private _recipes;
     

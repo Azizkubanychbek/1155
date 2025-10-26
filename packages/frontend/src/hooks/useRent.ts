@@ -478,6 +478,7 @@ export function useRent() {
         deposit,
       ],
       value: deposit,
+      // Remove explicit gas limit for zkSync
     });
   };
 
@@ -488,6 +489,7 @@ export function useRent() {
       abi: RENTAL_ESCROW_ABI,
       functionName: 'completeRental',
       args: [rentalId],
+      // Remove explicit gas limit for zkSync
     });
   };
 
@@ -498,6 +500,7 @@ export function useRent() {
       abi: RENTAL_ESCROW_ABI,
       functionName: 'penalize',
       args: [rentalId],
+      // Remove explicit gas limit for zkSync
     });
   };
 

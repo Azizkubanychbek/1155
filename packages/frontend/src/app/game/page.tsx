@@ -83,32 +83,28 @@ export default function PixelShooter() {
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 1n],
-    enabled: !!address
+    args: [address || '0x0', BigInt(1)]
   });
 
   const { data: shieldBalance } = useReadContract({
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 2n],
-    enabled: !!address
+    args: [address || '0x0', BigInt(2)]
   });
 
   const { data: herbBalance } = useReadContract({
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 3n],
-    enabled: !!address
+    args: [address || '0x0', BigInt(3)]
   });
 
   const { data: potionBalance } = useReadContract({
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address || '0x0', 4n],
-    enabled: !!address
+    args: [address || '0x0', BigInt(4)]
   });
 
   // Initialize game

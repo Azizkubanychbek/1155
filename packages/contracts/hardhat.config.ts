@@ -12,13 +12,13 @@ const config: HardhatUserConfig = {
       forceEVMLA: false,
     },
   },
-  defaultNetwork: "zkSyncSepolia",
+  defaultNetwork: "xsollaZkSepolia",
   networks: {
-    zkSyncSepolia: {
-      url: process.env.XSOLLA_ZK_SEPOLIA_RPC || "",
+    xsollaZkSepolia: {
+      url: process.env.XSOLLA_ZK_SEPOLIA_RPC || "https://zkrpc-sepolia.xsollazk.com",
       ethNetwork: "sepolia",
       zksync: true,
-      chainId: 300,
+      chainId: 555776,
       accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
     },
   },

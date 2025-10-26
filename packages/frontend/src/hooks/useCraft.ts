@@ -413,6 +413,7 @@ export function useCraft() {
         outputId,
         outputAmount,
       ],
+      // Remove explicit gas limit for zkSync
     });
   };
 
@@ -423,6 +424,7 @@ export function useCraft() {
       abi: RECIPE_REGISTRY_ABI,
       functionName: 'craft',
       args: [recipeId, receiver as `0x${string}`],
+      // Remove explicit gas limit for zkSync
     });
   };
 

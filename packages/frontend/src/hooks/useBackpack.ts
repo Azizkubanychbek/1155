@@ -2,6 +2,7 @@ import { useReadContract, useWriteContract, useAccount } from 'wagmi';
 import { parseAbi } from 'viem';
 import { CONTRACT_ADDRESSES } from '@/lib/addresses';
 import { UserRecord } from '@/lib/types';
+import { mockContractCall, mockWriteContract, MOCK_TOKENS } from '@/lib/mocks';
 
 // UsageRights1155 ABI (simplified)
 const USAGE_RIGHTS_ABI = parseAbi([
@@ -18,13 +19,16 @@ const USAGE_RIGHTS_ABI = parseAbi([
 export function useBackpack() {
   const { address } = useAccount();
   const { writeContract } = useWriteContract();
+  
+  // Check if we're in development mode (no contract addresses)
+  const isDevelopmentMode = !CONTRACT_ADDRESSES.UsageRights1155 || CONTRACT_ADDRESSES.UsageRights1155 === '0x0000000000000000000000000000000000000000';
 
   // Get balances for all tokens (1-4)
   const swordBalance = useReadContract({
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address!, 1n],
+    args: [address!, BigInt(1)],
     query: {
       enabled: !!address,
     },
@@ -34,7 +38,7 @@ export function useBackpack() {
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address!, 2n],
+    args: [address!, BigInt(2)],
     query: {
       enabled: !!address,
     },
@@ -44,7 +48,7 @@ export function useBackpack() {
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address!, 3n],
+    args: [address!, BigInt(3)],
     query: {
       enabled: !!address,
     },
@@ -54,7 +58,7 @@ export function useBackpack() {
     address: CONTRACT_ADDRESSES.UsageRights1155,
     abi: USAGE_RIGHTS_ABI,
     functionName: 'balanceOf',
-    args: [address!, 4n],
+    args: [address!, BigInt(4)],
     query: {
       enabled: !!address,
     },
@@ -62,6 +66,16 @@ export function useBackpack() {
 
   // Helper function to get balance by token ID
   const getBalance = (tokenId: bigint) => {
+    if (isDevelopmentMode) {
+      // Return mock data in development mode
+      const mockToken = MOCK_TOKENS.find(token => token.id === tokenId);
+      return { 
+        data: BigInt(mockToken?.balance || 0), 
+        isLoading: false, 
+        error: null 
+      };
+    }
+    
     switch (tokenId.toString()) {
       case '1':
         return swordBalance;
@@ -72,22 +86,30 @@ export function useBackpack() {
       case '4':
         return potionBalance;
       default:
-        return { data: 0n, isLoading: false, error: null };
+        return { data: BigInt(0), isLoading: false, error: null };
     }
   };
 
   // Set usage rights
   const setUser = async (tokenId: bigint, user: string, amount: bigint, expires: bigint) => {
+    if (isDevelopmentMode) {
+      return mockWriteContract('setUser', [tokenId, user, amount, expires]);
+    }
+    
     return writeContract({
       address: CONTRACT_ADDRESSES.UsageRights1155,
       abi: USAGE_RIGHTS_ABI,
       functionName: 'setUser',
-      args: [tokenId, user as `0x${string}`, amount, Number(expires)],
+      args: [tokenId, user as `0x${string}`, amount, expires],
     });
   };
 
   // Revoke usage rights
   const revokeUser = async (tokenId: bigint, user: string) => {
+    if (isDevelopmentMode) {
+      return mockWriteContract('revokeUser', [tokenId, user]);
+    }
+    
     return writeContract({
       address: CONTRACT_ADDRESSES.UsageRights1155,
       abi: USAGE_RIGHTS_ABI,

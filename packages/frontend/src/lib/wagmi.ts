@@ -4,8 +4,8 @@ import { injected, metaMask } from 'wagmi/connectors';
 
 // Define Xsolla ZK Sepolia chain
 export const xsollaZkSepolia = defineChain({
-  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 300,
-  name: 'Xsolla ZK Sepolia',
+  id: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 555776,
+  name: 'Xsolla ZK Sepolia Testnet',
   network: 'xsolla-zk-sepolia',
   nativeCurrency: {
     decimals: 18,
@@ -14,14 +14,14 @@ export const xsollaZkSepolia = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://sepolia.era.zksync.dev'],
+      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://zkrpc-sepolia.xsollazk.com'],
     },
     public: {
-      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://sepolia.era.zksync.dev'],
+      http: [process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || 'https://zkrpc-sepolia.xsollazk.com'],
     },
   },
   blockExplorers: {
-    default: { name: 'Xsolla ZK Explorer', url: 'https://explorer.xsolla-zk.com' },
+    default: { name: 'Xsolla ZK Explorer', url: 'https://explorer-sepolia.xsollazk.com' },
   },
   testnet: true,
 });
@@ -39,7 +39,9 @@ export const config = createConfig({
     }),
   ],
   transports: {
-    [xsollaZkSepolia.id]: http(),
+    [xsollaZkSepolia.id]: http({
+      batch: false, // Disable batching for zkSync
+    }),
   },
   ssr: false, // Disable SSR for wallet connectors
 });

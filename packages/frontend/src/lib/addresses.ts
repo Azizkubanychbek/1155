@@ -2,13 +2,14 @@
 // This file is updated after deployment
 
 export const CONTRACT_ADDRESSES = {
-  UsageRights1155: "0xfbA1b6DCcB692DC9b7221E66D63E9bF2c643199c",
-  PartyBackpack: "0x03448630519fC80583b67Ae5d1F80E4f9Eb72CB9", 
-  RecipeRegistry: "0x9628fa7Aaac8d27D92c4AF1F1eBF83024d0B7A04",
-  RentalEscrow: "0xBd047AE83778825Cdf86B4b08caa69Ee72eD3159"
+  ReputationSystem: "0xa03D392f52cEE204217939632b5CCA3aF6eBCA0C",
+  UsageRights1155: "0x9E270e38Bf69Bf35B3279B9f4A6fA66C584A83A1",
+  PartyBackpack: "0xde41e18E60446f61B7cfc08139D39860CF6eE64D",
+  RecipeRegistry: "0x47f5e7968D0E6FFf98965A5806B8Fdff21e6f871",
+  RentalEscrow: "0xA8D761268a39423349dFcB272444420F8638FbB8"
 } as const;
 
 export const CHAIN_CONFIG = {
-  chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID) || 0,
-  rpcUrl: process.env.NEXT_PUBLIC_XSOLLA_ZK_RPC || ""
+  chainId: 555776,
+  rpcUrl: "https://zkrpc-sepolia.xsollazk.com"
 } as const;

@@ -52,5 +52,19 @@ describe("UsageRights1155", function () {
       
       expect(await usageRights.isUserActive(1, owner.address, user1.address)).to.be.false;
     });
+
+    it("Should handle expired usage rights", async function () {
+      await usageRights.mint(owner.address, 1, 100, "0x");
+      
+      const expires = Math.floor(Date.now() / 1000) + 1; // 1 second from now
+      await usageRights.setUser(1, user1.address, 50, expires);
+      
+      expect(await usageRights.isUserActive(1, owner.address, user1.address)).to.be.true;
+      
+      // Wait for expiration
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      expect(await usageRights.isUserActive(1, owner.address, user1.address)).to.be.false;
+    });
   });
 });

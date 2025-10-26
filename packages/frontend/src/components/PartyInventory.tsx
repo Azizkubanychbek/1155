@@ -8,9 +8,9 @@ import { Button } from './ui/Button';
 import { Input } from './ui/Input';
 
 const DEMO_TOKENS = [
-  { id: 1n, name: 'Sword', description: 'A sharp blade for combat' },
-  { id: 2n, name: 'Shield', description: 'Protection from enemy attacks' },
-  { id: 3n, name: 'Herb', description: 'Healing plant for crafting' },
+  { id: BigInt(1), name: 'Sword', description: 'A sharp blade for combat' },
+  { id: BigInt(2), name: 'Shield', description: 'Protection from enemy attacks' },
+  { id: BigInt(3), name: 'Herb', description: 'Healing plant for crafting' },
 ];
 
 export function PartyInventory() {

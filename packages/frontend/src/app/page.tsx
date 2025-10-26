@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
+import { NetworkSwitcher } from '@/components/NetworkSwitcher';
 
 export default function HomePage() {
   return (
@@ -27,6 +28,11 @@ export default function HomePage() {
                   Learn More
                 </Button>
               </Link>
+            </div>
+            
+            {/* Network Switcher */}
+            <div className="mt-8">
+              <NetworkSwitcher />
             </div>
           </div>
         </div>

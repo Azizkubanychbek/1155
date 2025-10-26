@@ -16,6 +16,9 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
     // Mapping from token ID => owner => user => UserRecord
     mapping(uint256 => mapping(address => mapping(address => UserRecord))) private _usageRights;
     
+    // Mapping to track current active user for each token
+    mapping(uint256 => mapping(address => address)) private _currentUser;
+    
     // Reputation system integration
     ReputationSystem public reputationSystem;
     
@@ -45,8 +48,12 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
             uint256 amountGranted
         )
     {
-        UserRecord memory record = _usageRights[id][owner][_usageRights[id][owner][address(0)].user];
-        return (record.user, record.expires, record.amountGranted);
+        // Get the current active user for this token
+        UserRecord memory record = _usageRights[id][owner][_currentUser[id][owner]];
+        if (record.user != address(0) && record.expires > block.timestamp && record.amountGranted > 0) {
+            return (record.user, record.expires, record.amountGranted);
+        }
+        return (address(0), 0, 0);
     }
 
     /**
@@ -95,6 +102,9 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
             expires: expires,
             amountGranted: amount
         });
+        
+        // Update current user
+        _currentUser[id][msg.sender] = user;
 
         emit UpdateUser(msg.sender, user, id, amount, expires);
     }
@@ -121,6 +131,11 @@ contract UsageRights1155 is ERC1155, Ownable, ReentrancyGuard, IUsageRights1155 
         lastRevokeTime[msg.sender] = block.timestamp;
         
         delete _usageRights[id][msg.sender][user];
+        
+        // Clear current user if this was the current user
+        if (_currentUser[id][msg.sender] == user) {
+            _currentUser[id][msg.sender] = address(0);
+        }
         
         emit UpdateUser(msg.sender, user, id, 0, 0);
     }
